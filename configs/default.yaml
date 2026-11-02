@@ -1,0 +1,50 @@
+# Default experiment configuration.
+# Any value can be overridden from the command line, e.g.
+#   python -m src.train --model xception --set train.batch_size=16 data.img_size=256
+
+seed: 42
+output_dir: outputs
+
+data:
+  root: data/raw                 # folder that contains the Kaggle dataset (any sub-structure)
+  img_size: 299                  # native input size of Inception / Xception
+  test_size: 0.20                # 70 / 10 / 20 split (train / val / test), stratified
+  val_size: 0.10
+  classes: [glioma, meningioma, normal, pituitary]
+
+augment:                         # applied to the training set only
+  flip: true
+  rotation: 0.05                 # fraction of 2*pi (~ +/- 18 degrees)
+  translation: 0.08
+  zoom: 0.10
+  shear: 0.05                    # used only if your Keras version has RandomShear
+  brightness: 0.10
+  contrast: 0.10
+  noise_std: 0.02                # Gaussian noise, relative to the [-1, 1] input range
+
+model:
+  weights: imagenet              # set to null for training from scratch
+  dense_units: 256
+  dropout: 0.4
+  l2: 1.0e-4
+
+train:
+  batch_size: 32
+  label_smoothing: 0.1
+  class_weights: true            # compensates the large "normal" class
+  mixed_precision: false         # set true on a modern GPU for ~2x speed
+  # Stage 1: frozen backbone, train only the new classification head
+  head_epochs: 6
+  head_lr: 1.0e-3
+  # Stage 2: unfreeze the top of the backbone and fine-tune
+  finetune_epochs: 30
+  finetune_lr: 1.0e-4
+  min_lr: 1.0e-7
+  early_stopping_patience: 7
+  reduce_lr_patience: 3
+
+# Tuning for Xception (overrides the train section)
+backbones:
+  xception:
+    unfreeze_fraction: 0.50      # fraction of backbone layers (from the top) to fine-tune
+    finetune_lr: 1.0e-4

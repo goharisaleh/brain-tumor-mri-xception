@@ -1,0 +1,24 @@
+# data and training outputs (large files)
+data/
+outputs/
+*.keras
+*.h5
+*.npy
+*.zip
+
+# python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# os / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# secrets
+kaggle.json
